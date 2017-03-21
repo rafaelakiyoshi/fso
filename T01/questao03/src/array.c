@@ -37,47 +37,37 @@ int array_push(Array **self, int value) {
   }
 }
 
-//Metodo de chamada de ordenação a partir da chave -r ou -d
+//Metodo de ordenação selection sort a partir de chave -r ou -d
 int array_sort(Array **self, char key) {
+  int index_min;
+  int aux;
+
+  for (int i = 0; i < (*self)->length; i++) {
+    index_min = i;
+    for (int j = i + 1; j < (*self)->length; j++) {
+      if ( array_sortCondition(key, (*self)->__array__[j], (*self)->__array__ [index_min])) {
+        index_min = j;
+      }
+    }
+    if (index_min != i) {
+      aux = (*self)->__array__[index_min];
+      (*self)->__array__[index_min] = (*self)->__array__[i];
+      (*self)->__array__[i] = aux;
+    }
+  }
+
+  return 1;
+}
+
+//Condição de ordenação crescente ou decrescente a partir de chave -r ou -d
+int array_sortCondition(char key, int valueA, int valueB) {
   if (key == 'r') {
-    array_sortDecrescent((*self)->__array__, (*self)->length);
+    //Decrescente
+    return valueA > valueB;
   } else {
-    array_sortCrescent((*self)->__array__, (*self)->length);
+    //Crescente
+    return valueA < valueB;
   }
-
-  return 1;
-}
-
-//Ordenação crescente do Array.__array__
-int array_sortCrescent(int *array, int size) {
-  //bubble sort -- alterar depois pq ta feio
-  for (int i = 0; i < size - 1; i++) {
-    for (int j = 0; j < size - 1; j++) {
-      if ( array[j] > array [j+1]) {
-        int tmp = array[j];
-        array[j] = array[j+1];
-        array[j+1] = tmp;
-      }
-    }
-  }
-
-  return 1;
-}
-
-//Ordenação decrescente do Array.__array__
-int array_sortDecrescent(int *array, int size) {
-  //bubble sort -- alterar depois pq ta feio
-  for (int i = 0; i < size - 1; i++) {
-    for (int j = 0; j < size - 1; j++) {
-      if ( array[j] < array [j+1]) {
-        int tmp = array[j];
-        array[j] = array[j+1];
-        array[j+1] = tmp;
-      }
-    }
-  }
-
-  return 1;
 }
 
 int array_print(Array *self) {
