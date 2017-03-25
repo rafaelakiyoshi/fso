@@ -5,8 +5,8 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
 
-double distanceBetweenDots(Dot* one, Dot* two);
-int isConvex(Quadrilateral* quadrilateral);
+double determinant(Dot dot1, Dot dot2, Dot dot3);
+int isConvex();
 double perimeter(Quadrilateral* quadrilateral);
 double area(Quadrilateral* quadrilateral);
 
