@@ -22,7 +22,20 @@ double determinant(Dot dot1, Dot dot2, Dot dot3) {
   return determinant;
 }
 
-int isConvex() {
+int isConvex(Quadrilateral * quad) {
+  int sign = 0, i;
+  for (i = 0; i < 4; i++ ) {
+     double dx1 = quad->dots[(i+1) % 4].x - quad->dots[ i%4 ].x;
+     double dy1 = quad->dots[(i+1) % 4].y - quad->dots[ i%4 ].y;
+     double dx2 = quad->dots[(i+2) % 4].x - quad->dots[ (i+1)% 4].x;
+     double dy2 = quad->dots[(i+2) % 4].y - quad->dots[ (i+1)% 4].y;
+     double z = dx1*dy2 - dy1*dx2;
+
+     if ( i == 0 )
+        sign = z > 0;
+     else if ( sign != ( z > 0 ))
+        return 0;
+  }
   return 1;
 }
 

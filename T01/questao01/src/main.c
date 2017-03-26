@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
   Quadrilateral *quad;
   init_quadrilateral(&quad);
   insertDots(&quad);
-  int convex = isConvex();
+  int convex = isConvex(quad);
   if(convex == 1){
     printf("Quadrilatero convexo.\n");
     area(quad);
