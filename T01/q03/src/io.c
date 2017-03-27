@@ -13,6 +13,7 @@ int inputValue(Array **array) {
   int value = 0;
   int scanf_value = 0;
   if(scanf("%d", &value) < 1) {
+    fflush(stdin);
     __fpurge(stdin);
     return 1;
   }
