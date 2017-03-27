@@ -1,5 +1,4 @@
 #include <math.h>
-#include <stdio.h>
 
 #include "../include/operations.h"
 #include "../include/polygon.h"
@@ -39,10 +38,6 @@ int isConvex(Quadrilateral * quad) {
   return 1;
 }
 
-double perimeter(Quadrilateral* quadrilateral) {
-
-}
-
 double area(Quadrilateral* quad) {
   Dot d1 = quad->dots[0];
   Dot d2 = quad->dots[1];
@@ -53,6 +48,4 @@ double area(Quadrilateral* quad) {
   if(D1<0) D1 = D1*-1;
   if(D2<0) D2 = D2*-1;
   double qArea = (D1 + D2*(1/2));
-  printf("Area: %.0lf \n", qArea);
-
 }

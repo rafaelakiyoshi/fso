@@ -12,3 +12,11 @@ int insertDots(Quadrilateral **self) {
     (*self)->push(self, newDot(x_val, y_val));
   }
 }
+
+void convexOutput(int isConvex) {
+  printf("Quadrilatero %sconvexo.\n", (isConvex ? "" : "não "));
+}
+
+void areaOutput(double area) {
+  printf("Area: %.0lf.\n", area);
+}

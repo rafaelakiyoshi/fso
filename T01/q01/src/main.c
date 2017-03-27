@@ -6,15 +6,16 @@
 
 int main(int argc, char *argv[]) {
   Quadrilateral *quad;
+  int convex = 0;
+
   init_quadrilateral(&quad);
   insertDots(&quad);
-  int convex = isConvex(quad);
-  if(convex == 1){
-    printf("Quadrilatero convexo.\n");
-    area(quad);
-  } else {
-    printf("Quadrilatero nao convexo.\n");
+  convex = isConvex(quad);
+  convexOutput(convex);
+  if(convex == 1) {
+    areaOutput(area(quad));
   }
+
 
   return 0;
 }
