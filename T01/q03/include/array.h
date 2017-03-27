@@ -9,7 +9,6 @@ struct _array {
   int (*get)(Array*, int);
   int (*push)(Array**, int);
   int (*sort)(Array**, char);
-  int (*print)(Array*);
 };
 
 int init_array(Array **self);
@@ -18,6 +17,5 @@ int array_get(Array *self, int pos);
 int array_push(Array **self, int value);
 int array_sort(Array **self, char key);
 int array_sortCondition(char key, int valueA, int valueB);
-int array_print(Array *self);
 
 #endif

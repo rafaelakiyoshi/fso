@@ -1,29 +1,30 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "../include/io.h"
 #include "../include/array.h"
 
 int main (int argc, char *argv[]) {
-  char key[2];
-  char order[11];
+  char *key = NULL;
   Array *array;
 
   init_array(&array);
 
   if (argc > 1) {
-    strcpy(key, argv[1]);
-    if (key[1] == 'r') {
-      strcpy(order, "decrescente");
-    } else {
-      strcpy(order, "crescente");
+    for (int i = 1; i < argc; i ++) {
+      if (strcmp(argv[i], "-r")|| strcmp(argv[i], "-d")) {
+        key = argv[i];
+      }
     }
-  } else {
-    strcpy(order, "crescente");
+  }
+  if (key == NULL) {
+    key = (char*) malloc(sizeof(char) * 2);
+    strcpy(key, "-d");
   }
 
   while(inputValue(&array));
   array->sort(&array, key[1]);
-  printOutput(array, order);
+  printOutput(array, key);
 
   return 0;
 }

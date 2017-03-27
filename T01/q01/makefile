@@ -1,6 +1,6 @@
 program_NAME := q1
 
-.PHONY: clean
+.PHONY: $(program_NAME) clean
 
 $(program_NAME): src/io.o src/operations.o src/polygon.o src/main.o
 	gcc $(CFLAGS) -o $(program_NAME) src/io.o src/operations.o src/polygon.o src/main.o

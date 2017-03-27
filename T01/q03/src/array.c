@@ -13,7 +13,6 @@ int init_array(Array **self) {
   (*self)->get = array_get;
   (*self)->push = array_push;
   (*self)->sort = array_sort;
-  (*self)->print = array_print;
   return 1;
 }
 
@@ -68,11 +67,4 @@ int array_sortCondition(char key, int valueA, int valueB) {
     //Crescente
     return valueA < valueB;
   }
-}
-
-int array_print(Array *self) {
-  for (int i = 0; i < self->length; i++) {
-    printf("%d ", self->get(self, i));
-  }
-  printf("\n");
 }

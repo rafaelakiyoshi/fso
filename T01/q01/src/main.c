@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "../include/polygon.h"
 #include "../include/io.h"
@@ -9,7 +10,9 @@ int main(int argc, char *argv[]) {
   int convex = 0;
 
   init_quadrilateral(&quad);
-  insertDots(&quad);
+  if(insertDots(&quad)) {
+    exit(1);
+  }
   convex = isConvex(quad);
   convexOutput(convex);
   if(convex == 1) {
