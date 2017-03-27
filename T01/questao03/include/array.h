@@ -1,5 +1,5 @@
-#ifndef VETOR_H
-#define VETOR_H
+#ifndef ARRAY_H
+#define ARRAY_H
 
 typedef struct _array _array, Array;
 struct _array {

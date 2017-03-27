@@ -5,16 +5,16 @@ program_NAME := q3
 all: $(program_NAME) clean
 
 $(program_NAME): src/io.o src/array.o src/main.o
-	g++ -o $(program_NAME) src/io.o src/array.o src/main.o
+	gcc -o $(program_NAME) src/io.o src/array.o src/main.o
 
 io.o: src/io.c include/io.h
-	g++ -c src/io.c
+	gcc -c src/io.c
 
 array.o: src/array.c include/array.h
-	g++ -c src/array.c
+	gcc -c src/array.c
 
 main.o: src/main.c include/array.h include/io.h
-	g++ -c src/main.c
+	gcc -c src/main.c
 
 clean:
 	rm -rf src/*.o
