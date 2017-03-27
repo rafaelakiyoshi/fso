@@ -7,11 +7,12 @@
 int main (int argc, char *argv[]) {
   char *key = NULL;
   Array *array;
+  int i;
 
   init_array(&array);
 
   if (argc > 1) {
-    for (int i = 1; i < argc; i ++) {
+    for (i = 1; i < argc; i ++) {
       if (strcmp(argv[i], "-r")|| strcmp(argv[i], "-d")) {
         key = argv[i];
       }

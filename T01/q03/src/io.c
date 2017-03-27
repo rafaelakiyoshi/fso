@@ -24,7 +24,8 @@ int inputValue(Array **array) {
 }
 
 int arrayPrint(Array *self) {
-  for (int i = 0; i < self->length; i++) {
+  int i;
+  for (i = 0; i < self->length; i++) {
     printf("%d ", self->get(self, i));
   }
   printf("\n");

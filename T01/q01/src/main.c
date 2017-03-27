@@ -19,6 +19,5 @@ int main(int argc, char *argv[]) {
     areaOutput(area(quad));
   }
 
-
   return 0;
 }

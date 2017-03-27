@@ -39,11 +39,11 @@ int array_push(Array **self, int value) {
 //Metodo de ordenação selection sort a partir de chave -r ou -d
 int array_sort(Array **self, char key) {
   int index_min;
-  int aux;
+  int aux, i, j;
 
-  for (int i = 0; i < (*self)->length; i++) {
+  for (i = 0; i < (*self)->length; i++) {
     index_min = i;
-    for (int j = i + 1; j < (*self)->length; j++) {
+    for (j = i + 1; j < (*self)->length; j++) {
       if ( array_sortCondition(key, (*self)->__array__[j], (*self)->__array__ [index_min])) {
         index_min = j;
       }
