@@ -86,7 +86,7 @@ int main (int argc, char *argv[]) {
         // strcpy(input, "POOOORRA")
         fscanf(stdin, "%s", input);
         gettimeofday(&time_end, NULL);
-        timestamp = time_diff(time_end, time_start);
+        timestamp = (double)(time_end.tv_sec - time_start.tv_sec) + ((double)time_end.tv_usec - (double)time_start.tv_usec)/1000000.0f;
 
         sprintf(child_msg, "0:%02d.%03d: Mensagem %02d do usuario <%s>", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), child_msg_num, input);
         write(active_fd[1], child_msg, sizeof(child_msg));
@@ -114,7 +114,7 @@ int main (int argc, char *argv[]) {
           if (FD_ISSET(active_fd[0], &set)) {
             if(read(active_fd[0], buffer, sizeof(buffer))) {
               gettimeofday(&time_end, NULL);
-              timestamp = time_diff(time_end, time_start);
+              timestamp = (double)(time_end.tv_sec - time_start.tv_sec) + ((double)time_end.tv_usec - (double)time_start.tv_usec)/1000000.0f;
               printf("0:%02d.%03d: %s\n", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), buffer);
             }
           }
