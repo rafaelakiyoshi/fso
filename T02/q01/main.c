@@ -16,14 +16,14 @@ int fork_children(int);
 double time_diff(struct timeval, struct timeval);
 
 int main (int argc, char *argv[]) {
-  struct timeval timeout, time_start, time_end, lazy_end, active_end;
-  double timestamp, lazy_timestamp;
+  struct timeval timeout, time_start, time_end;
+  double timestamp;
   pid_t lazy_pid, active_pid;
   int lazy_fd[2], active_fd[2], ret, random;
-  char lazy_msg[BUFFER], active_msg[BUFFER],input[BUFFER];
+  char child_msg[BUFFER],input[BUFFER];
   char buffer[BUFFER];
   fd_set set;
-  int lazy_msg_num = 1;
+  int child_msg_num = 1;
   srand(time(NULL));
 
   timeout.tv_sec = 5;
@@ -57,13 +57,13 @@ int main (int argc, char *argv[]) {
     do {
       sleep(rand()%3);
 
-      gettimeofday(&lazy_end, NULL);
-    	lazy_timestamp = time_diff(lazy_end, time_start);
+      gettimeofday(&time_end, NULL);
+    	timestamp = time_diff(time_end, time_start);
 
-      sprintf(lazy_msg, "0:%02.3lf: Mensagem %02d do filho dorminhoco", lazy_timestamp, lazy_msg_num);
-      write(lazy_fd[1], lazy_msg, sizeof(lazy_msg));
-      lazy_msg_num++;
-    }while(lazy_timestamp < 30);
+      sprintf(child_msg, "0:%02d.%03d: Mensagem %02d do filho dorminhoco", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), child_msg_num);
+      write(lazy_fd[1], child_msg, sizeof(child_msg));
+      child_msg_num++;
+    }while(timestamp < 30);
   // fim filho preguicoso
   } else { // processo pai
     close(lazy_fd[1]);
@@ -79,16 +79,19 @@ int main (int argc, char *argv[]) {
       exit(1);
     } else if (active_pid == 0) { // processo filho ativo
       close(active_fd[0]);
-      double active_timestamp;
+      do {
 
-      while(scanf("%s", input) && active_timestamp < 30) {
-        gettimeofday(&active_end, 0);
-      	active_timestamp = time_diff(active_end, time_start);
-        printf("active_timestamp: %lf\n", active_timestamp);
-        sprintf(active_msg, "0:%lf: Mensagem %02d do usuario: <%s>\n", active_timestamp, lazy_msg_num, input);
-        write(active_fd[1], active_msg, sizeof(active_msg));
-        lazy_msg_num++;
-      }
+        // descomente o sleep e o strcpy e comente o fscanf para ver como funciona direitinho, é o scanf que ta zuado
+        // sleep(9);
+        // strcpy(input, "POOOORRA")
+        fscanf(stdin, "%s", input);
+        gettimeofday(&time_end, NULL);
+        timestamp = time_diff(time_end, time_start);
+
+        sprintf(child_msg, "0:%02d.%03d: Mensagem %02d do usuario <%s>", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), child_msg_num, input);
+        write(active_fd[1], child_msg, sizeof(child_msg));
+        child_msg_num++;
+      }while(timestamp < 30);
     } else { //processo pai
       close(active_fd[1]);
 
@@ -98,18 +101,21 @@ int main (int argc, char *argv[]) {
         FD_ZERO(&set);
         FD_SET(lazy_fd[0], &set);
         FD_SET(active_fd[0], &set);
-        ret = select(active_fd[0] + 1, &set, NULL, NULL, &timeout);
+        ret = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
+
         if (ret > 0) {
-          gettimeofday(&time_end, NULL);
-          timestamp = time_diff(time_end, time_start);
           if (FD_ISSET(lazy_fd[0], &set)) {
             if(read(lazy_fd[0], buffer, sizeof(buffer))) {
-              printf("0:%02.3lf: %s\n", timestamp, buffer);
+              gettimeofday(&time_end, NULL);
+              timestamp = time_diff(time_end, time_start);
+              printf("0:%02d.%03d: %s\n", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), buffer);
             }
           }
           if (FD_ISSET(active_fd[0], &set)) {
             if(read(active_fd[0], buffer, sizeof(buffer))) {
-              printf("0:%02.3lf: %s\n", timestamp, buffer);
+              gettimeofday(&time_end, NULL);
+              timestamp = time_diff(time_end, time_start);
+              printf("0:%02d.%03d: %s\n", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), buffer);
             }
           }
         }
