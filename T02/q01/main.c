@@ -11,8 +11,7 @@
 #define MAX_TIME 30
 #define BUFFER 256
 
-int child_process(char*);
-int fork_children(int);
+void write_output(char*);
 double time_diff(struct timeval, struct timeval);
 
 int main (int argc, char *argv[]) {
@@ -20,8 +19,7 @@ int main (int argc, char *argv[]) {
   double timestamp;
   pid_t lazy_pid, active_pid;
   int lazy_fd[2], active_fd[2], ret, random;
-  char child_msg[BUFFER],input[BUFFER];
-  char buffer[BUFFER];
+  char child_msg[BUFFER],input[BUFFER], input_buffer[BUFFER], buffer[BUFFER], output[BUFFER];
   fd_set set;
   int child_msg_num = 1;
   srand(time(NULL));
@@ -29,17 +27,14 @@ int main (int argc, char *argv[]) {
   timeout.tv_sec = 5;
   timeout.tv_usec = 0;
   gettimeofday(&time_start, NULL);
-  // Comando para pegar tempo a partir do clock, há outras possibilidades
-  // ------
-  // time_start = clock();
-  //
-  // while(timestamp < 30) {
-  //   time_end = clock();
-  // 	timestamp = (double) (time_end-time_start)/CLOCKS_PER_SEC;
-  // }
-  // printf("0:%2.3f\n", timestamp);
 
-  // fork_children(1);
+  // abrindo arquivo com write para limpa-lo
+  FILE *file = fopen("output.txt", "w");
+  if (file == NULL) {
+    printf("Arquivo não pode ser aberto. Abortando...\n");
+    exit(1);
+  }
+  fclose(file);
 
   // Criando pipe para conversa com filho preguicoso
   if(pipe(lazy_fd) == -1) {
@@ -51,7 +46,8 @@ int main (int argc, char *argv[]) {
   lazy_pid = fork();
   if (lazy_pid < 0) {
     exit(1);
-  } else if (lazy_pid == 0) { // processo filho preguicoso
+  } else if (lazy_pid == 0) {
+    // processo filho preguicoso
     close(lazy_fd[0]);
 
     do {
@@ -77,24 +73,22 @@ int main (int argc, char *argv[]) {
     active_pid = fork();
     if (active_pid < 0) {
       exit(1);
-    } else if (active_pid == 0) { // processo filho ativo
+    } else if (active_pid == 0) {
+      // processo filho ativo
       close(active_fd[0]);
       do {
-
-        // descomente o sleep e o strcpy e comente o fscanf para ver como funciona direitinho, é o scanf que ta zuado
-        // sleep(9);
-        // strcpy(input, "POOOORRA")
-        fscanf(stdin, "%s", input);
+        fgets(input_buffer, sizeof(input), stdin);
+        sscanf(input_buffer, "%99[^\n]", input);
         gettimeofday(&time_end, NULL);
         timestamp = (double)(time_end.tv_sec - time_start.tv_sec) + ((double)time_end.tv_usec - (double)time_start.tv_usec)/1000000.0f;
 
-        sprintf(child_msg, "0:%02d.%03d: Mensagem %02d do usuario <%s>", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), child_msg_num, input);
+        sprintf(child_msg, "0:%02d.%03d: Mensagem %02d do usuario: <%s>", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), child_msg_num, input);
         write(active_fd[1], child_msg, sizeof(child_msg));
         child_msg_num++;
       }while(timestamp < 30);
-    } else { //processo pai
+    } else {
+      //processo pai
       close(active_fd[1]);
-
       do {
         timeout.tv_sec = 5;
         timeout.tv_usec = 0;
@@ -108,14 +102,16 @@ int main (int argc, char *argv[]) {
             if(read(lazy_fd[0], buffer, sizeof(buffer))) {
               gettimeofday(&time_end, NULL);
               timestamp = time_diff(time_end, time_start);
-              printf("0:%02d.%03d: %s\n", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), buffer);
+              sprintf(output, "0:%02d.%03d: %s\n", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), buffer);
+              write_output(output);
             }
           }
           if (FD_ISSET(active_fd[0], &set)) {
             if(read(active_fd[0], buffer, sizeof(buffer))) {
               gettimeofday(&time_end, NULL);
               timestamp = (double)(time_end.tv_sec - time_start.tv_sec) + ((double)time_end.tv_usec - (double)time_start.tv_usec)/1000000.0f;
-              printf("0:%02d.%03d: %s\n", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), buffer);
+              sprintf(output, "0:%02d.%03d: %s\n", (int)timestamp, (int)((timestamp - (int)timestamp)*1000), buffer);
+              write_output(output);
             }
           }
         }
@@ -130,4 +126,18 @@ int main (int argc, char *argv[]) {
 double time_diff(struct timeval t1, struct timeval t0)
 {
     return (double)(t1.tv_sec - t0.tv_sec) + (t1.tv_usec - t0.tv_usec) / 1000.0f;
+}
+
+
+
+void write_output(char *output_msg) {
+  FILE *file = fopen("output.txt", "a");
+  if (file == NULL) {
+    printf("Arquivo não pode ser aberto. Abortando...\n");
+    exit(1);
+  }
+
+  fprintf(file, "%s", output_msg);
+
+  fclose(file);
 }
