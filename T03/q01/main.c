@@ -1,5 +1,7 @@
 #include <stdlib.h>
+#include <unistd.h>
 #include <stdio.h>
+#include <stdio_ext.h>
 #include <pthread.h>
 #include <signal.h>
 #include <limits.h>
@@ -105,8 +107,7 @@ void *producer(void *param) {
   int random_number;
   char output_msg[256];
   while(1) {
-    random_number = rand() % (INT_MAX/2 - INT_MIN/2) + INT_MIN/2 + 1;
-    pthread_mutex_lock(&mutexdata);
+    random_number = (rand() % (INT_MAX/2 - INT_MIN/2) + INT_MIN/2) + (rand() % (INT_MAX/2 - INT_MIN/2) + INT_MIN/2);
     sprintf(output_msg, "[producao]: Numero gerado: %d\n", random_number);
     printf("%s", output_msg);
     write_output(output_file, output_msg);
@@ -120,7 +121,6 @@ void *producer(void *param) {
       data.min_num = random_number;
     }
     pthread_cond_signal(&cond_cons);
-    pthread_mutex_unlock(&mutexdata);
     usleep(100000);
   }
   pthread_exit(NULL);
