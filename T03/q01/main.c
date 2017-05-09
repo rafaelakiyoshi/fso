@@ -9,6 +9,7 @@
 
 #define NUM_THREADS 3
 #define MAX_BUFFER 50
+#define CONS_SLEEP 0
 
 typedef struct _data {
   int buffer[MAX_BUFFER];
@@ -16,6 +17,7 @@ typedef struct _data {
   int min_num;
   int counter_prod;
   int counter_cons;
+  int max_buffer;
 }Data;
 
 Data data;
@@ -40,6 +42,7 @@ int main(int argc, char *argv[]) {
   /* init data */
   data.counter_prod = 0;
   data.counter_cons = 0;
+  data.max_buffer = 0;
   data.max_num = INT_MIN;
   data.min_num = INT_MAX;
 
@@ -68,6 +71,7 @@ int main(int argc, char *argv[]) {
   /* Create the producer threads */
     pthread_create(&threads[0], &attr, producer, NULL);
   /* Create the consumer threads */
+
   for(i = 0; i < 2; i++) {
     /* Create the thread */
     pthread_create(&threads[i+1], &attr, consumer, (void *)i);
@@ -79,7 +83,7 @@ int main(int argc, char *argv[]) {
   }
 
   /* Controller output */
-  sprintf(output_msg, "[aviso]: Maior numero gerado: %d\n[aviso]: Menor numero gerado: %d\n[aviso]: Maior ocupacao de buffer: %d\n[aviso]: Aplicacao encerrada.\n", data.max_num, data.min_num, data.counter_prod);
+  sprintf(output_msg, "[aviso]: Maior numero gerado: %d\n[aviso]: Menor numero gerado: %d\n[aviso]: Maior ocupacao de buffer: %d\n[aviso]: Aplicacao encerrada.\n", data.max_num, data.min_num, data.max_buffer);
   printf("%s", output_msg);
   write_output(output_file, output_msg);
   /* Free thread attribute */
@@ -107,20 +111,23 @@ void *producer(void *param) {
   int random_number;
   char output_msg[256];
   while(1) {
-    random_number = (rand() % (INT_MAX/2 - INT_MIN/2) + INT_MIN/2) + (rand() % (INT_MAX/2 - INT_MIN/2) + INT_MIN/2);
-    sprintf(output_msg, "[producao]: Numero gerado: %d\n", random_number);
-    printf("%s", output_msg);
-    write_output(output_file, output_msg);
-    data.buffer[data.counter_prod % MAX_BUFFER] = random_number;
-    data.counter_prod += 1;
+    if (data.counter_prod - data.counter_cons < MAX_BUFFER) {
+      random_number = (rand() % (INT_MAX/2 - INT_MIN/2) + INT_MIN/2) + (rand() % (INT_MAX/2 - INT_MIN/2) + INT_MIN/2);
+      sprintf(output_msg, "[producao]: Numero gerado: %d\n", random_number);
+      printf("%s", output_msg);
+      write_output(output_file, output_msg);
+      data.buffer[data.counter_prod % MAX_BUFFER] = random_number;
+      data.counter_prod += 1;
 
-    if (random_number > data.max_num) {
-      data.max_num = random_number;
+      if (data.max_buffer < data.counter_prod - data.counter_cons) {
+        data.max_buffer = data.counter_prod - data.counter_cons;
+      }
+      pthread_cond_signal(&cond_cons);
+    } else {
+      if (data.counter_prod - data.counter_cons > 1) {
+        pthread_cond_signal(&cond_cons);
+      }
     }
-    if (random_number < data.min_num) {
-      data.min_num = random_number;
-    }
-    pthread_cond_signal(&cond_cons);
     usleep(100000);
   }
   pthread_exit(NULL);
@@ -129,15 +136,25 @@ void *producer(void *param) {
 /* Consumer Thread */
 void *consumer(void *arg) {
   int t_id = 'a' + ((long)arg);
+  int consumed_number;
   char output_msg[265];
+  sleep(CONS_SLEEP);
   while(1) {
     pthread_mutex_lock(&mutexdata);
     pthread_cond_wait(&cond_cons, &mutexdata);
-    sprintf(output_msg, "[consumo %c]: Numero lido: %d\n", t_id, data.buffer[data.counter_cons % MAX_BUFFER]);
+    consumed_number = data.buffer[data.counter_cons % MAX_BUFFER];
+    sprintf(output_msg, "[consumo %c]: Numero lido: %d\n", t_id, consumed_number);
     printf("%s", output_msg);
     write_output(output_file, output_msg);
     data.counter_cons += 1;
     pthread_mutex_unlock(&mutexdata);
+
+    if (consumed_number > data.max_num) {
+      data.max_num = consumed_number;
+    }
+    if (consumed_number < data.min_num) {
+      data.min_num = consumed_number;
+    }
     usleep(150000);
   }
   pthread_exit(NULL);
