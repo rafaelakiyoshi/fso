@@ -2,13 +2,13 @@
 #include <stdio.h>
 #include "../include/libseno.h"
 
-double seno(double angulo) {
+double seno (double angulo) {
   double prox = angulo;
   long double condition;
   int i = 1;
   double soma = angulo;
   while(1) {
-    prox = (prox * pow((double) (-1), (double) (2 * i - 1)) * angulo * angulo) / (2 * i * (2 * i + 1)) ;
+    prox = (prox * power((double) (-1), (double) (2 * i - 1)) * angulo * angulo) / (2 * i * (2 * i + 1)) ;
     soma = soma + prox;
     condition = prox;
     if (condition < 0)  condition*= -1;
@@ -17,16 +17,21 @@ double seno(double angulo) {
   }
 }
 
-double arc_seno(double val_seno) {
+double arc_seno (double val_seno) {
   double prox = val_seno;
   int i = 1;
   double soma = val_seno;
   double condition = 0;
   if (val_seno == 0) return 0;
   while(i < 10000) {
-    prox = prox * ((pow(val_seno,2) * (2*i - 1) * (2*i - 1)) / ((2 * i) * (2 * i + 1)));
+    prox = prox * ((power(val_seno,2) * (2*i - 1) * (2*i - 1)) / ((2 * i) * (2 * i + 1)));
     soma = soma + prox;
     i++;
   }
   return soma;
+}
+
+double power (double x, int y) {
+  if (y <= 1) return x;
+  return x * power (x, y - 1);
 }

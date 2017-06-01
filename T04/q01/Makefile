@@ -1,17 +1,23 @@
-.PHONY: lib a clean 
+.PHONY: static dynamic lib/libseno.a lib/libseno.so obj/main.o obj/libseno.o clean
 
-lib: src/libseno.o
-	ar cr lib/libseno.a src/libseno.o
+static: lib/libseno.a obj/main.o
+	gcc $(CFLAGS) -o static obj/main.o -L./lib/ -lseno
 
-libseno.o: src/libseno.c include/libseno.h
-	gcc $(CFLAGS) -c src/libseno.c
+dynamic: LIBFLAG = -fPIC
+dynamic: lib/libseno.so obj/main.o
+	gcc $(CFLAGS) -o dynamic obj/main.o -L./lib/ -lseno -Wl,-rpath,./lib/
 
-a: src/main.o
-	gcc $(CFLAGS) -o a src/main.o -L./lib/ -lseno -lm
+lib/libseno.a: obj/libseno.o
+	ar cr $(CFLAGS) lib/libseno.a obj/libseno.o
 
-main.o: src/main.c
-	gcc ($CFLAGS) -c src/main.c
+lib/libseno.so: src/libseno.c include/libseno.h
+	gcc -shared $(LIBFLAG) -o lib/libseno.so -c src/libseno.c
 
+obj/libseno.o: src/libseno.c include/libseno.h
+	gcc $(CFLAGS) -o obj/libseno.o -c src/libseno.c
+
+obj/main.o: src/main.c
+	gcc $(CFLAGS) -o obj/main.o -c src/main.c
 
 clean:
-	rm -f src/*.o
+	rm -f lib/* dynamic static obj/*.o
