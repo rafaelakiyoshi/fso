@@ -1,15 +1,23 @@
-.PHONY: static dynamic lib/libseno.a lib/libseno.so obj/main.o obj/libseno.o clean
+.PHONY: static shared dynamic lib/libseno.a lib/libseno.so obj/main.o obj/libseno.o clean
+.SILENT: man
+
+man:
+	echo "make static - compile a static version"
+	echo ""
+	echo "make shared - compile a shared version"
+	echo ""
+	echo "make dynamic - compile a dynamic loaded version"
 
 static: lib/libseno.a obj/main.o
-	gcc $(CFLAGS) -o bin/static obj/main.o -L./lib/ -lseno -lm
+	gcc $(CFLAGS) -static -o bin/static obj/main.o -L./lib/ -lseno -lm
+
+shared: LIBFLAG = -fPIC
+shared: lib/libseno.so obj/main.o
+	gcc $(CFLAGS) -o bin/shared obj/main.o -L./lib/ -lseno -Wl,-rpath,./lib/ -lm
 
 dynamic: LIBFLAG = -fPIC
-dynamic: lib/libseno.so obj/main.o
-	gcc $(CFLAGS) -o bin/dynamic obj/main.o -L./lib/ -lseno -Wl,-rpath,./lib/ -lm
-
-libdl: LIBFLAG = -fPIC
-libdl: lib/libseno.so obj/libdl_main.o
-	gcc -o bin/libdl obj/libdl_main.o -Wl,-rpath,./lib/ -ldl -lm
+dynamic: lib/libseno.so obj/dynamic_main.o
+	gcc -o bin/dynamic obj/dynamic_main.o -Wl,-rpath,./lib/ -ldl -lm
 
 lib/libseno.a: obj/libseno.o
 	ar cr $(CFLAGS) lib/libseno.a obj/libseno.o
@@ -23,8 +31,8 @@ obj/libseno.o: src/libseno.c include/libseno.h
 obj/main.o: src/main.c
 	gcc $(CFLAGS) -o obj/main.o -c src/main.c
 
-obj/libdl_main.o: src/libdl_main.c
-	gcc $(CFLAGS) -o obj/libdl_main.o -c src/libdl_main.c
+obj/dynamic_main.o: src/dynamic_main.c
+	gcc $(CFLAGS) -o obj/dynamic_main.o -c src/dynamic_main.c
 
 clean:
 	rm -f lib/* bin/* obj/*
