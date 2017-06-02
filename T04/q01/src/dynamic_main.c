@@ -29,6 +29,9 @@ int main (int argc, char *argv[]) {
     lib_func = dlsym (module, "arc_seno");
     printf("arc_");
   }
+  else {
+    exit(1);
+  }
   if ((error = dlerror()) != NULL)  {
     fputs(error, stderr);
     exit(1);
