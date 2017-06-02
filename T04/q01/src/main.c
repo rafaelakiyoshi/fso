@@ -1,20 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "../include/libseno.h"
 
 int main (int argc, char *argv[]) {
-
+  char func = 's';
+  double rad = 0;
   if (argc < 3) {
     exit(1);
   }
-  char func = argv[1][1];
-  double rad = strtod(argv[2], NULL);
+  func = argv[1][1];
+  rad = strtod(argv[2], NULL);
 
   if(func == 's') {
-    printf("seno (%.2lf) = %.3lf\n", ((int)(rad * 100)/100.0) , ((int)(seno(rad) * 1000)) / 1000.0);
+    printf("seno (%.2lf) = %.2lf\n", floor(rad*100.0f) / 100.0f , floor(seno(rad) * 100.0f) / 100.0f);
   }
   else if (func == 'a') {
-    printf("arc_seno (%.2lf) = %.2lf\n", ((int)(rad * 100)/100.0), arc_seno(rad));
+    printf("arc_seno (%.2lf) = %.2lf\n", floor(rad*100.0f) / 100.0f , floor(arc_seno(rad) * 100.0f) / 100.0f);
   }
 
   return 0;
