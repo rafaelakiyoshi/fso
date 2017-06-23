@@ -36,6 +36,7 @@ void read_file(long byteAmount, char *file_name) {
     buffer = (char*) malloc (sizeof(char)*byteAmount);
     result = fread (buffer,1,byteAmount,pFile);
   }
+  buffer[result] = '\0';
   if (result != lSize) {fputs ("Reading error",stderr); exit (3);}
 
   /* the whole file is now loaded in the memory buffer. */
